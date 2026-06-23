@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Gestión de Choferes{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h3 mb-0">Base de Choferes</h2>
+    <a class="btn btn-primary" href="{{ url_for('chofer_nuevo') }}">+ Nuevo Chofer</a>
+</div>
+
+<form method="GET" class="d-flex mb-4" style="max-width: 400px;">
+    <input type="text" name="q" class="form-control me-2" placeholder="Buscar por DNI..." value="{{ q or '' }}">
+    <button type="submit" class="btn btn-primary">
+        <i class="bi bi-search"></i> Buscar
+    </button>
+    {% if q %}
+        <a href="{{ url_for('choferes_list') }}" class="btn btn-secondary ms-2">Limpiar</a>
+    {% endif %}
+</form>
+
+<div class="card p-0 overflow-hidden shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-4">Nombre</th>
+                    <th>DNI</th>
+                    <th>Licencia Vence</th>
+                    <th>Empresa</th>
+                    <th>Teléfono</th>
+                    <th class="text-end pe-4">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in choferes.items %}
+                <tr>
+                    <td class="ps-4 fw-bold text-dark">{{ c.nombre }}</td>
+                    <td>{{ c.dni }}</td>
+                    <td>
+                        {% if c.licencia_vencimiento < today %}
+                            <span class="badge bg-danger">{{ c.licencia_vencimiento.strftime('%d/%m/%Y') }}</span>
+                        {% else %}
+                            {{ c.licencia_vencimiento.strftime('%d/%m/%Y') }}
+                        {% endif %}
+                    </td>
+                    <td>{{ c.empresa.nombre }}</td>
+                    <td>{{ c.telefono or '-' }}</td>
+                    <td class="text-end pe-4">
+                        <a href="{{ url_for('chofer_editar', chofer_id=c.id) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center py-4 text-muted">No hay choferes cargados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% if choferes.pages > 1 %}
+<div class="d-flex justify-content-center mt-4">
+    <a href="{{ url_for('choferes_list', page=choferes.prev_num, q=q) }}" class="btn btn-outline-primary me-2 {% if not choferes.has_prev %}disabled{% endif %}">Anterior</a>
+    <span class="btn btn-light disabled">Página {{ choferes.page }} de {{ choferes.pages }}</span>
+    <a href="{{ url_for('choferes_list', page=choferes.next_num, q=q) }}" class="btn btn-outline-primary ms-2 {% if not choferes.has_next %}disabled{% endif %}">Siguiente</a>
+</div>
+{% endif %}
+{% endblock %}

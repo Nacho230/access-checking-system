@@ -1,0 +1,16 @@
+# Bases de datos y datos sensibles
+instance/
+terminal.db
+*.xlsx
+*.csv
+
+# Archivos subidos por usuarios
+uploads/*
+!uploads/.gitkeep
+
+# Archivos de sistema y Python
+__pycache__/
+*.pyc
+venv/
+env/
+.env

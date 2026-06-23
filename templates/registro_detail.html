@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Detalle Ingreso #{{ reg.id }}{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>📄 Ingreso #{{ reg.id }}</h1>
+    <div class="d-flex gap-2">
+        {% if current_user.role == 'admin' %}
+            {% if not reg.override_forzado and reg.inspeccion_result == 'Rechazado' %}
+            <a href="{{ url_for('forzar', registro_id=reg.id) }}" class="btn btn-warning">⚠️ Forzar Ingreso</a>
+            {% endif %}
+
+            <form method="post" action="{{ url_for('registro_eliminar', registro_id=reg.id) }}" onsubmit="return confirm('¿Seguro que desea eliminar este registro?');">
+                <button class="btn btn-outline-danger" type="submit">Eliminar</button>
+            </form>
+        {% endif %}
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Volver</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+
+        <div class="card mb-4">
+            <div class="card-header">Estado del Ingreso</div>
+            <div class="card-body text-center">
+                {% if reg.override_forzado %}
+                    <div class="alert alert-warning mb-0">
+                        <h4 class="alert-heading">⚠️ FORZADO POR ADMIN</h4>
+                        <p class="mb-0">{{ reg.override_motivo }}</p>
+                    </div>
+                {% elif reg.inspeccion_result == 'Aprobado' %}
+                    <div class="alert alert-success mb-0">
+                        <h4 class="alert-heading">✅ APROBADO</h4>
+                        <p class="mb-0">Apto para ingresar</p>
+                    </div>
+                {% elif reg.inspeccion_result == 'Rechazado' %}
+                    <div class="alert alert-danger mb-0">
+                        <h4 class="alert-heading">⛔ RECHAZADO</h4>
+                        <p class="mb-0">{{ reg.inspeccion_motivo }}</p>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info mb-0">
+                        <h4 class="alert-heading">⏳ PENDIENTE</h4>
+                        <p class="mb-0">Falta inspección física</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header fw-bold">👤 Datos del Chofer</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <strong>Nombre:</strong> {{ reg.chofer.nombre }}
+                </li>
+                <li class="list-group-item">
+                    <strong>DNI:</strong> {{ reg.chofer.dni }}
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span><strong>Licencia Vence:</strong> {{ reg.chofer.licencia_vencimiento.strftime('%d/%m/%Y') }}</span>
+                    {% if licencia_vencida %}
+                        <span class="badge bg-danger">VENCIDA</span>
+                    {% else %}
+                        <span class="badge bg-success">Vigente</span>
+                    {% endif %}
+                </li>
+                <li class="list-group-item">
+                    <strong>Empresa:</strong> {{ reg.chofer.empresa.nombre }}
+                </li>
+            </ul>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header fw-bold">🚛 Datos del Camión</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <strong>Patente:</strong> <span class="badge bg-dark">{{ reg.camion.patente }}</span>
+                </li>
+                <li class="list-group-item">
+                    <strong>Marca/Modelo:</strong> {{ reg.camion.marca }} {{ reg.camion.modelo }}
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span><strong>Seguro Vence:</strong> {{ reg.camion.seguro_vencimiento.strftime('%d/%m/%Y') }}</span>
+                    {% if seguro_vencido %}
+                        <span class="badge bg-danger">VENCIDO</span>
+                    {% else %}
+                        <span class="badge bg-success">Vigente</span>
+                    {% endif %}
+                </li>
+                <li class="list-group-item">
+                    <strong>Empresa Tpte:</strong> {{ reg.camion.empresa.nombre }}
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header fw-bold">📋 Inspección Física</div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-3">
+                        <small>Neumáticos</small><br>
+                        {{ '✅' if reg.inspeccion_neumaticos_ok else '❌' }}
+                    </div>
+                    <div class="col-3">
+                        <small>Luces</small><br>
+                        {{ '✅' if reg.inspeccion_luces_ok else '❌' }}
+                    </div>
+                    <div class="col-3">
+                        <small>Golpes</small><br>
+                        {{ '✅' if reg.inspeccion_golpes_ok else '❌' }}
+                    </div>
+                    <div class="col-3">
+                        <small>Precintos</small><br>
+                        {{ '✅' if reg.inspeccion_precintos_ok else '❌' }}
+                    </div>
+                    <div class="col border-start">
+                        <small class="text-muted fw-bold text-primary">OTROS</small><br>
+                        <span class="fs-5">{{ '✅' if reg.inspeccion_otros_ok else '❌' }}</span>
+                    </div>
+                </div>
+                {% if reg.observaciones %}
+                <hr>
+                <strong>Observaciones:</strong>
+                <p class="text-muted mb-0">{{ reg.observaciones }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header fw-bold">📷 Evidencia Fotográfica</div>
+            <div class="card-body">
+                {% if reg.imagenes %}
+                    <div class="row g-2">
+                        {% for img in reg.imagenes %}
+                        <div class="col-6">
+                            <a href="{{ url_for('uploads', filename=img.archivo) }}" target="_blank">
+                                <img src="{{ url_for('uploads', filename=img.archivo) }}" class="img-fluid rounded border" alt="Evidencia">
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-3">No se cargaron imágenes.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="text-muted text-end mt-2 small">
+            Ingreso registrado: {{ reg.fecha_ingreso.strftime('%d/%m/%Y %H:%M') }}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

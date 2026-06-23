@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Resultado{% endblock %}
+{% block content %}
+<div class="row justify-content-center fade-in-up">
+    <div class="col-md-8 text-center">
+        
+        {# --- 1. SI HAY MOTIVOS DE RECHAZO O ERROR (Prioridad 1) --- #}
+        {# Esto atrapa tanto documentos vencidos como "Chofer no existe" #}
+        {% if motivos %}
+            <div class="card border-danger border-2 shadow-sm mb-4">
+                <div class="card-body p-5">
+                    <div class="display-1 mb-3">⛔</div>
+                    <h1 class="text-danger fw-bold mb-3">Ingreso NO Autorizado</h1>
+                    <p class="lead text-muted">Problemas detectados:</p>
+                    
+                    <ul class="list-group list-group-flush text-start d-inline-block mx-auto mb-4">
+                        {% for m in motivos %}
+                        <li class="list-group-item list-group-item-danger border-0 rounded mb-1">
+                            ⚠️ {{ m }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <div class="mt-3">
+                        <a class="btn btn-outline-secondary" href="{{ url_for('precheck') }}">← Volver a consultar</a>
+                    </div>
+                </div>
+            </div>
+
+        {# --- 2. SI ES VIGILADOR Y ESTÁ OK (Prioridad 2) --- #}
+        {% elif modo_vigilador and registro %}
+            <div class="card border-primary border-2 shadow-sm mb-4">
+                <div class="card-body p-5">
+                    <div class="display-1 mb-3">🔎</div>
+                    <h1 class="text-primary fw-bold mb-3">Documentación Correcta</h1>
+                    
+                    <div class="alert alert-light border d-inline-block text-start px-5">
+                        <p class="mb-1"><strong>Chofer:</strong> {{ registro.chofer.nombre }}</p>
+                        <p class="mb-1"><strong>DNI:</strong> {{ registro.chofer.dni }}</p>
+                        <p class="mb-0"><strong>Patente:</strong> {{ registro.camion.patente }}</p>
+                    </div>
+                    
+                    <p class="text-muted mt-3">Registro de ingreso #{{ registro.id }} iniciado.</p>
+
+                    <div class="d-grid gap-2 d-sm-flex justify-content-center mt-4">
+                        <a class="btn btn-primary btn-lg px-5 shadow" href="{{ url_for('inspeccion', registro_id=registro.id) }}">
+                            REALIZAR INSPECCIÓN FÍSICA →
+                        </a>
+                    </div>
+                    <div class="mt-3">
+                        <a class="text-muted small" href="{{ url_for('precheck') }}">Cancelar</a>
+                    </div>
+                </div>
+            </div>
+
+        {# --- 3. SI ES OPERADOR Y ESTÁ OK (Prioridad 3) --- #}
+        {% elif puede %}
+            <div class="card border-success border-2 shadow-sm mb-4">
+                <div class="card-body p-5">
+                    <div class="display-1 mb-3">✅</div>
+                    <h1 class="text-success fw-bold mb-3">Habilitado para Ingresar</h1>
+                    <p class="lead text-muted">La documentación está en regla. Registro creado exitosamente.</p>
+                    
+                    <div class="d-grid gap-2 d-sm-flex justify-content-center mt-4">
+                        <a class="btn btn-outline-primary" href="{{ url_for('index') }}">Volver al Inicio</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

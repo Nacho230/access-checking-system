@@ -1,0 +1,177 @@
+/* --- CONFIGURACIÓN DE COLORES (TECPLATA) --- */
+:root {
+    /* Navbar y Títulos: Negro (para resaltar el logo) */
+    --primary-color: #1a1a1a;
+
+    /* Botones y Acentos: Naranja Industrial */
+    --accent-color: #f26522;
+
+    /* Fondo: Gris muy suave */
+    --bg-color: #f8f9fa;
+
+    /* Texto: Gris oscuro */
+    --text-color: #334155;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5 {
+    color: var(--primary-color);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+/* --- NAVBAR BRANDING --- */
+.navbar-custom {
+    background-color: var(--primary-color);
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid var(--accent-color); /* Línea naranja decorativa abajo del menú */
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+}
+
+.nav-link {
+    font-weight: 500;
+    margin-right: 10px;
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: var(--accent-color) !important; /* Al pasar el mouse, se pone naranja */
+}
+
+/* --- TARJETAS Y CONTENEDORES --- */
+.card, .table-responsive, form.card-body {
+    background: #fff;
+    border: none;
+    border-radius: 8px; /* Bordes un poco más rectos (estilo industrial) */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* --- TABLAS --- */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: #fff;
+    color: #64748b;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    border-bottom: 2px solid var(--accent-color); /* Línea naranja en cabecera de tabla */
+    padding: 12px 16px;
+}
+
+.table tbody td {
+    padding: 16px;
+    vertical-align: middle;
+    color: #475569;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: rgba(0, 0, 0, 0.02);
+    box-shadow: none;
+}
+
+/* --- BOTONES PERSONALIZADOS --- */
+.btn {
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 8px 16px;
+    transition: all 0.2s;
+}
+
+/* Botón Primario (Naranja) */
+.btn-primary {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff; /* Texto blanco */
+}
+
+.btn-primary:hover {
+    background-color: #d9531e; /* Un naranja un poco más oscuro al pasar el mouse */
+    border-color: #d9531e;
+    transform: translateY(-1px);
+}
+
+/* Botón Borde (Outline) */
+.btn-outline-primary {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--accent-color);
+    color: #fff;
+    border-color: var(--accent-color);
+}
+
+/* --- FORMULARIOS --- */
+.form-control, .form-select {
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    padding: 10px 12px;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(242, 101, 34, 0.15); /* Sombra naranja suave */
+}
+
+.form-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #475569;
+    margin-bottom: 6px;
+}
+
+/* --- BADGES (Etiquetas) --- */
+.badge {
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+.badge.bg-success {
+    background-color: #22c55e !important; /* Verde más vibrante */
+    color: #fff;
+}
+.badge.bg-danger {
+    background-color: #ef4444 !important; /* Rojo más vibrante */
+    color: #fff;
+}
+.badge.bg-primary {
+    background-color: var(--accent-color) !important; /* Naranja */
+    color: #fff;
+}
+
+/* --- IMÁGENES --- */
+.card img {
+    border-radius: 6px;
+    object-fit: cover;
+    height: 180px;
+    width: 100%;
+}
+
+/* --- ANIMACIÓN --- */
+.fade-in-up {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

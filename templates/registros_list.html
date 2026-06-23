@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Registros de ingreso{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h3 mb-0">Tablero de Control</h2>
+    {% if current_user.role == 'admin' %}
+    <a class="btn btn-success text-white"
+       href="{{ url_for('exportar_xlsx', patente=patente, dni=dni, estado=estado, empresa_id=empresa_id, desde=desde, hasta=hasta) }}">
+       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-spreadsheet me-2" viewBox="0 0 16 16">
+          <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V9H3V2a1 1 0 0 1 1-1h5.5v2zM3 12v-2h2v2H3zm0 1h2v2H4a1 1 0 0 1-1-1v-1zm3 2v-2h3v2H6zm4 0v-2h3v1a1 1 0 0 1-1 1h-2zm3-3h-3v-2h3v2zm-7 0v-2h3v2H6z"/>
+       </svg>
+       Exportar Excel
+    </a>
+    {% endif %}
+</div>
+
+<div class="card mb-4">
+    <form class="row g-2 align-items-end p-3" method="get">
+      <div class="col-md-2">
+        <label class="form-label small mb-1">Patente</label>
+        <input type="text" class="form-control form-control-sm" name="patente" placeholder="Ej: AA123BB" value="{{ patente or '' }}">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small mb-1">DNI Chofer</label>
+        <input type="text" class="form-control form-control-sm" name="dni" placeholder="Ej: 30123456" value="{{ dni or '' }}">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small mb-1">Estado</label>
+        <select name="estado" class="form-select form-select-sm">
+          <option value="" {% if not estado %}selected{% endif %}>Todos</option>
+          <option value="Aprobado" {% if estado == 'Aprobado' %}selected{% endif %}>Aprobado</option>
+          <option value="Rechazado" {% if estado == 'Rechazado' %}selected{% endif %}>Rechazado</option>
+          <option value="Pendiente" {% if estado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+          <option value="Forzado" {% if estado == 'Forzado' %}selected{% endif %}>Forzado</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+          <label class="form-label small mb-1">Empresa</label>
+          <select name="empresa_id" class="form-select form-select-sm">
+              <option value="">Todas</option>
+              {% for e in empresas %}
+              <option value="{{ e.id }}" {% if empresa_id and empresa_id|int == e.id %}selected{% endif %}>{{ e.nombre }}</option>
+              {% endfor %}
+          </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small mb-1">Fechas (Desde - Hasta)</label>
+        <div class="input-group input-group-sm">
+            <input type="date" class="form-control" name="desde" value="{{ desde or '' }}">
+            <input type="date" class="form-control" name="hasta" value="{{ hasta or '' }}">
+        </div>
+      </div>
+      <div class="col-md-1 d-flex gap-1">
+        <button class="btn btn-primary btn-sm w-100" type="submit" title="Filtrar">🔍</button>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary btn-sm w-100" title="Ver Todas">Todas</a>
+      </div>
+    </form>
+</div>
+
+<div class="card p-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Ingreso</th>
+              <th>Patente</th>
+              <th>Chofer</th>
+              <th>Estado</th>
+              <th>Vencimientos</th>
+              <th>Fotos</th>
+              <th class="text-end pe-4">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in registros.items %}
+            <tr>
+              <td class="ps-4">
+                  <div class="fw-bold text-dark">{{ r.fecha_ingreso.strftime('%d/%m/%Y') }}</div>
+                  <small class="text-muted">{{ r.fecha_ingreso.strftime('%H:%M') }} hs</small>
+              </td>
+              <td><span class="font-monospace fw-bold fs-6">{{ r.camion.patente }}</span></td>
+              <td>
+                  <div class="fw-bold">{{ r.chofer.nombre }}</div>
+                  <small class="text-muted">DNI: {{ r.chofer.dni }}</small>
+              </td>
+              <td>
+                {% if r.override_forzado %}
+                    <span class="badge bg-warning text-dark">Forzado</span>
+                {% elif r.inspeccion_result == 'Aprobado' %}
+                    <span class="badge bg-success">Aprobado</span>
+                {% elif r.inspeccion_result == 'Rechazado' %}
+                    <span class="badge bg-danger">Rechazado</span>
+                {% else %}
+                    <span class="badge bg-secondary">Pendiente</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if r.precheck_result and 'Actualizar' in r.precheck_result %}
+                    <div class="badge bg-warning text-dark">{{ r.precheck_result }}</div>
+                {% elif r.chofer.licencia_vencimiento < today or r.camion.seguro_vencimiento < today %}
+                    <div class="badge bg-danger">Vencido</div>
+                {% else %}
+                    <span class="text-success small">✔ Todo en regla</span>
+                {% endif %}
+              </td>
+              <td>
+                  {% if r.imagenes|length > 0 %}
+                    <span class="badge bg-light text-dark border">{{ r.imagenes|length }} 📷</span>
+                  {% else %}
+                    <span class="text-muted small">-</span>
+                  {% endif %}
+              </td>
+              <td class="text-end pe-4">
+                {% if r.inspeccion_result == 'Pendiente' and current_user.role in ['admin', 'operador'] %}
+                    <a href="{{ url_for('inspeccion', registro_id=r.id) }}" class="btn btn-sm btn-warning">Inspeccionar</a>
+                {% endif %}
+                <a href="{{ url_for('registro_detalle', registro_id=r.id) }}" class="btn btn-sm btn-outline-primary">Detalles</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="7" class="text-center py-5">
+                  <p class="text-muted h5">No se encontraron registros.</p>
+                  <p class="small text-muted">Intenta cambiar los filtros de búsqueda.</p>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+</div>
+{% if registros.pages > 1 %}
+<div class="d-flex justify-content-center mt-4">
+    <a href="{{ url_for('index', page=registros.prev_num, patente=patente, dni=dni, estado=estado, empresa_id=empresa_id, desde=desde, hasta=hasta) }}" class="btn btn-outline-primary me-2 {% if not registros.has_prev %}disabled{% endif %}">Anterior</a>
+    <span class="btn btn-light disabled">Página {{ registros.page }} de {{ registros.pages }}</span>
+    <a href="{{ url_for('index', page=registros.next_num, patente=patente, dni=dni, estado=estado, empresa_id=empresa_id, desde=desde, hasta=hasta) }}" class="btn btn-outline-primary ms-2 {% if not registros.has_next %}disabled{% endif %}">Siguiente</a>
+</div>
+{% endif %}
+{% endblock %}

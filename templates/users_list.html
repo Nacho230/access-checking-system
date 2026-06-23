@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Usuarios{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>Usuarios</h1>
+  <a class="btn btn-outline-primary" href="{{ url_for('usuario_nuevo') }}">+ Nuevo usuario</a>
+</div>
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Usuario</th>
+      <th>Nombre</th>
+      <th>Rol</th>
+      <th>Activo</th>
+      <th>Creado</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in usuarios %}
+    <tr>
+      <td>{{ u.id }}</td>
+      <td>{{ u.username }}</td>
+      <td>{{ u.nombre }}</td>
+      <td>
+          <span class="badge {{ 'bg-primary' if u.role=='admin' else ('bg-info text-dark' if u.role=='vigilador' else 'bg-secondary') }}">
+              {{ u.role }}
+          </span>
+      </td>
+      <td>
+          {% if u.active %}
+            <span class="badge bg-success">Sí</span>
+          {% else %}
+            <span class="badge bg-danger">No</span>
+          {% endif %}
+      </td>
+      <td>{{ u.creado_en.strftime('%d/%m/%Y') }}</td>
+      <td class="text-end">
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{{ url_for('usuario_editar', user_id=u.id) }}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-pencil"></i>
+            </a>
+
+            {% if u.id != current_user.id %}
+            <form method="post" action="{{ url_for('usuario_eliminar', user_id=u.id) }}" onsubmit="return confirm('¿Estás SEGURO de eliminar a {{ u.username }}? Esta acción no se puede deshacer.');">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </form>
+            {% endif %}
+        </div>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="text-center text-muted py-4">No hay usuarios registrados.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

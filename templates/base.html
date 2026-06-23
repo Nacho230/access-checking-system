@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Access Checking{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+  <style>
+      /* Pequeño ajuste para que el logo se vea bien en el navbar */
+      .navbar-brand img {
+          height: 40px; /* Ajusta este valor según el tamaño de tu logo */
+          width: auto;
+          margin-right: 10px;
+      }
+  </style>
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url_for('index') }}">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+        Access Checking
+    </a>
+
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div id="nav" class="collapse navbar-collapse">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 fw-medium">
+        {% if current_user.is_authenticated %}
+
+          {% if current_user.role == 'admin' %}
+          <li class="nav-item">
+              <a class="nav-link px-3" href="{{ url_for('index') }}">
+                  <i class="bi bi-speedometer2 me-1"></i> Dashboard
+              </a>
+          </li>
+          {% endif %}
+
+          <li class="nav-item">
+              <a class="nav-link px-3 text-warning" href="{{ url_for('precheck') }}">
+                  <i class="bi bi-truck-front me-1"></i> Nuevo Ingreso
+              </a>
+          </li>
+
+          {% if current_user.role in ['admin', 'operador'] %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle px-3" href="#" data-bs-toggle="dropdown">
+                <i class="bi bi-gear-fill me-1"></i> Administración
+            </a>
+            <ul class="dropdown-menu shadow-sm border-0">
+
+              {% if current_user.role == 'admin' %}
+              <li><a class="dropdown-item" href="{{ url_for('usuarios_list') }}">👥 Usuarios</a></li>
+              <li><hr class="dropdown-divider"></li>
+              {% endif %}
+
+              <li><a class="dropdown-item" href="{{ url_for('empresas_list') }}">🏢 Empresas</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('choferes_list') }}">👤 Choferes</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('camiones_list') }}">🚛 Camiones</a></li>
+            </ul>
+          </li>
+          {% endif %}
+
+        {% endif %}
+      </ul>
+      <div class="d-flex align-items-center border-start ps-3 ms-3">
+        {% if current_user.is_authenticated %}
+          <div class="text-white me-3 lh-1 text-end">
+              <div class="fw-bold">{{ current_user.nombre }}</div>
+              <small class="opacity-75 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">{{ current_user.role }}</small>
+          </div>
+          <a class="btn btn-sm btn-danger fw-bold" href="{{ url_for('logout') }}">
+              <i class="bi bi-box-arrow-right"></i> Salir
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</nav>
+<main class="container my-5 pb-5">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} shadow-sm border-0 fade-in-up d-flex align-items-center">
+            {% if category == 'success' %}<i class="bi bi-check-circle-fill me-2 fs-5"></i>
+            {% elif category == 'danger' %}<i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+            {% elif category == 'warning' %}<i class="bi bi-exclamation-circle-fill me-2 fs-5"></i>
+            {% else %}<i class="bi bi-info-circle-fill me-2 fs-5"></i>{% endif %}
+            <div>{{ message }}</div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

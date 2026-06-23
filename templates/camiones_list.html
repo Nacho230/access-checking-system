@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Flota de Camiones{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h3 mb-0">Flota de Camiones</h2>
+    <a class="btn btn-primary" href="{{ url_for('camion_nuevo') }}">+ Nuevo Camión</a>
+</div>
+
+<form method="GET" class="d-flex mb-4" style="max-width: 400px;">
+    <input type="text" name="q" class="form-control me-2" placeholder="Buscar por patente..." value="{{ q or '' }}">
+    <button type="submit" class="btn btn-primary">
+        <i class="bi bi-search"></i> Buscar
+    </button>
+    {% if q %}
+        <a href="{{ url_for('camiones_list') }}" class="btn btn-secondary ms-2">Limpiar</a>
+    {% endif %}
+</form>
+
+<div class="card p-0 overflow-hidden shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-4">Patente</th>
+                    <th>Marca/Modelo</th>
+                    <th>Seguro Vence</th>
+                    <th>Empresa</th>
+                    <th class="text-end pe-4">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in camiones.items %}
+                <tr>
+                    <td class="ps-4"><span class="badge bg-light text-dark border">{{ c.patente }}</span></td>
+                    <td>{{ c.marca }} {{ c.modelo }}</td>
+                    <td>
+                        {% if c.seguro_vencimiento < today %}
+                            <span class="text-danger fw-bold"><i class="bi bi-exclamation-circle"></i> {{ c.seguro_vencimiento.strftime('%d/%m/%Y') }} (Vencido)</span>
+                        {% else %}
+                            {{ c.seguro_vencimiento.strftime('%d/%m/%Y') }}
+                        {% endif %}
+                    </td>
+                    <td>{{ c.empresa.nombre }}</td>
+                    <td class="text-end pe-4">
+                        <a href="{{ url_for('camion_editar', camion_id=c.id) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="text-center py-4 text-muted">No hay camiones registrados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% if camiones.pages > 1 %}
+<div class="d-flex justify-content-center mt-4">
+    <a href="{{ url_for('camiones_list', page=camiones.prev_num, q=q) }}" class="btn btn-outline-primary me-2 {% if not camiones.has_prev %}disabled{% endif %}">Anterior</a>
+    <span class="btn btn-light disabled">Página {{ camiones.page }} de {{ camiones.pages }}</span>
+    <a href="{{ url_for('camiones_list', page=camiones.next_num, q=q) }}" class="btn btn-outline-primary ms-2 {% if not camiones.has_next %}disabled{% endif %}">Siguiente</a>
+</div>
+{% endif %}
+{% endblock %}

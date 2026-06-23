@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Inspección Física{% endblock %}
+{% block content %}
+<div class="row justify-content-center fade-in-up">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-white border-bottom pt-3 pb-2 d-flex justify-content-between align-items-center">
+                <h3 class="h5 mb-0">📋 Inspección Visual #{{ reg.id }}</h3>
+                <span id="estado-visual" class="badge bg-success fs-6">APTO ✅</span>
+            </div>
+            <div class="card-body p-4">
+
+                <div class="alert alert-light border mb-4">
+                    <div class="row text-center">
+                        <div class="col-6 border-end">
+                            <small class="text-muted">Camión</small><br>
+                            <strong>{{ reg.camion.patente }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Chofer</small><br>
+                            <strong>{{ reg.chofer.dni }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="post" enctype="multipart/form-data">
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Neumáticos</label>
+                            <select name="neumaticos" class="form-select form-select-lg check-input">
+                                <option value="ok">✅ En condiciones</option>
+                                <option value="mal">❌ Mal estado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Luces</label>
+                            <select name="luces" class="form-select form-select-lg check-input">
+                                <option value="ok">✅ Funcionan todas</option>
+                                <option value="mal">❌ Quemadas / Rotas</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Carrocería</label>
+                            <select name="golpes" class="form-select form-select-lg check-input">
+                                <option value="ok">✅ Sin golpes graves</option>
+                                <option value="mal">❌ Dañada / Golpeada</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Precintos</label>
+                            <select name="precintos" class="form-select form-select-lg check-input">
+                                <option value="ok">✅ Correctos</option>
+                                <option value="mal">❌ Rotos / Faltantes</option>
+                            </select>
+                            <div class="col-12"> <label class="form-label fw-bold border-bottom w-100 pb-1">Otros Aspectos Generales</label>
+                            <select name="otros" class="form-select form-select-lg check-input bg-light">
+                                <option value="ok">✅ Todo el resto en orden</option>
+                                <option value="mal">❌ Hay una novedad NO listada arriba (Detallar en Obs.)</option>
+                            </select>
+                             <div class="form-text small">Si marca "❌ Hay una novedad", por favor aclare qué es en el campo de Observaciones de abajo.</div>
+                        </div>
+
+                    </div>
+
+                    <div id="mensaje-resultado" class="alert alert-success text-center fw-bold mb-4">
+                        EL VEHÍCULO ESTÁ APTO PARA INGRESAR
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Observaciones</label>
+                        <textarea name="observaciones" rows="2" class="form-control" placeholder="Detalles adicionales..."></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Evidencia Fotográfica</label>
+                        <input type="file" name="imagenes" class="form-control" accept="image/*" capture="environment" multiple>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-end border-top pt-3">
+                        <a class="btn btn-secondary me-md-2" href="{{ url_for('precheck') }}">Cancelar</a>
+                        <button class="btn btn-primary px-5" type="submit">Finalizar Inspección</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Seleccionamos todos los inputs y los elementos visuales
+    const inputs = document.querySelectorAll('.check-input');
+    const badge = document.getElementById('estado-visual');
+    const mensaje = document.getElementById('mensaje-resultado');
+
+    function actualizarEstado() {
+        let todoOk = true;
+
+        // Revisamos si alguno está en 'mal'
+        inputs.forEach(input => {
+            if (input.value === 'mal') {
+                todoOk = false;
+            }
+        });
+
+        if (todoOk) {
+            // Estado APTO
+            badge.className = 'badge bg-success fs-6';
+            badge.innerHTML = 'APTO ✅';
+            mensaje.className = 'alert alert-success text-center fw-bold mb-4';
+            mensaje.innerHTML = 'EL VEHÍCULO ESTÁ APTO PARA INGRESAR';
+        } else {
+            // Estado NO APTO
+            badge.className = 'badge bg-danger fs-6';
+            badge.innerHTML = 'NO APTO ⛔';
+            mensaje.className = 'alert alert-danger text-center fw-bold mb-4';
+            mensaje.innerHTML = 'EL VEHÍCULO NO PUEDE INGRESAR (Se registrará rechazo)';
+        }
+    }
+
+    // Escuchar cambios en todos los selectores
+    inputs.forEach(input => {
+        input.addEventListener('change', actualizarEstado);
+    });
+</script>
+{% endblock %}

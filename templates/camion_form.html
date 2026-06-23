@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Camión{% endblock %}
+{% block content %}
+<h2 class="mb-4">Datos del Camión</h2>
+<form method="post" class="card card-body">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">Patente *</label>
+            <input type="text" name="patente" class="form-control text-uppercase" value="{{ camion.patente if camion else '' }}" required>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Vencimiento Seguro *</label>
+            <input type="date" name="seguro_vencimiento" class="form-control" value="{{ camion.seguro_vencimiento.strftime('%Y-%m-%d') if camion else '' }}" required>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Empresa *</label>
+            <select name="empresa_id" class="form-select" required>
+                {% for e in empresas %}
+                <option value="{{ e.id }}" {% if camion and camion.empresa_id==e.id %}selected{% endif %}>{{ e.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Marca</label>
+            <input type="text" name="marca" class="form-control" value="{{ camion.marca if camion else '' }}">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Modelo</label>
+            <input type="text" name="modelo" class="form-control" value="{{ camion.modelo if camion else '' }}">
+        </div>
+        <div class="col-12 mt-4">
+            <button class="btn btn-primary" type="submit">Guardar Camión</button>
+            <a href="{{ url_for('camiones_list') }}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Forzar Ingreso{% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-warning">
+            <div class="card-header bg-warning text-dark fw-bold">
+                ⚠️ Autorización Excepcional
+            </div>
+            <div class="card-body p-4">
+                <h4 class="mb-3">Forzar Ingreso #{{ reg.id }}</h4>
+                
+                <div class="alert alert-light border mb-4">
+                    <strong>Camión:</strong> {{ reg.camion.patente }}<br>
+                    <strong>Chofer:</strong> {{ reg.chofer.nombre }}<br>
+                    <span class="text-danger">Motivo Rechazo: {{ reg.inspeccion_motivo }}</span>
+                </div>
+
+                <p class="small text-muted mb-3">
+                    Estás por anular el rechazo del sistema. Esta acción quedará registrada bajo tu usuario <strong>{{ current_user.username }}</strong>.
+                </p>
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Justificación del ingreso forzado *</label>
+                        <textarea name="motivo" class="form-control" rows="3" required placeholder="Ej: Autorizado por Gerencia, el daño es cosmético..."></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('registro_detalle', registro_id=reg.id) }}" class="btn btn-secondary me-md-2">Cancelar</a>
+                        <button type="submit" class="btn btn-warning fw-bold">Confirmar Ingreso</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
